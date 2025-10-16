@@ -22,6 +22,7 @@ Endpoint
 
 **parameters**
 > text: str # the text to be translated
+
 > lang: str (en o ar) # the language of the text that must be translated
 
 **output**
