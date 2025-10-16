@@ -1,6 +1,5 @@
 import requests
 from fastapi import FastAPI, HTTPException, Query, APIRouter
-from SPARQLWrapper import SPARQLWrapper, JSON
 import yaml
 import os,json
 from internal.schemas import ExtractedKnowledge,UncertaintyList
@@ -18,7 +17,7 @@ query = APIRouter(
 )
 
 
-@query.get("/graphrag",response_model=ExtractedKnowledge)
+@query.get("/extract",response_model=ExtractedKnowledge)
 def retrieve(text:str):
     
     res = retriever.extract_knowledge(text=text)

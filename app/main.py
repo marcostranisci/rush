@@ -22,7 +22,7 @@ app.include_router(query_router)
 
 @app.get("/")
 async def root():
-    return {"message": f"Benvenuto nell'API di {config.name}!"}
+    return {"message": f"Welcome to the APIs of the RUSH project!"}
 
 
 

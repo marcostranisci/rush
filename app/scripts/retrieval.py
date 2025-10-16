@@ -2,9 +2,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch,json
 from sentence_transformers import SentenceTransformer
 import json
-import pandas as pd
-import faiss
-import numpy as np
 from internal.config import config
 
 sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -14,11 +11,9 @@ sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
 class Retriever:
     def __init__(self):
         self.model_name = "numind/NuExtract-tiny-v1.5"
-        self.device = "mps"
+        self.device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
         self.model = AutoModelForCausalLM.from_pretrained(self.model_name, torch_dtype=torch.bfloat16, trust_remote_code=True).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
-        self.sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
-        self.df = pd.read_parquet('data/entities_def.parquet')
 
 
     def extract_knowledge(self, text, template=config.template, max_length=10_000, max_new_tokens=4_000):
@@ -36,25 +31,3 @@ class Retriever:
         print(outputs[0].split("<|output|>")[1])
         return outputs[0].split("<|output|>")[1]
     
-    def link(self, entity, type,k=3):
-        if type == 'work':
-            index = faiss.read_index('data/faiss_db/text/work.faiss')
-        elif type == 'person':
-            index = faiss.read_index('data/faiss_db/text/person.faiss')
-        elif type == 'subject':
-            index = faiss.read_index('data/faiss_db/text/subject.faiss')
-        elif type == 'publisher':
-            index = faiss.read_index('data/faiss_db/text/publisher.faiss')
-        
-        query_vector = self.sentence_model.encode([entity], return_tensors=True)
-        distances, indices = index.search(query_vector, k)
-        print(indices)
-        retrieved = list()
-        for i,idx in enumerate(indices[0]):
-            
-            retrieved.append(({'entity':self.df[(self.df.text_id==idx)&(self.df.type==type)].entity.values[0]},{'distance':distances[0][i].item()}))
-
-        return retrieved
-
-
-
