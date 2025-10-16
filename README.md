@@ -20,6 +20,7 @@ This repo is a fast api service that supports:
 Endpoint
 > 0.0.0.0/800/query/translate
 
+**parameters**
 > text: str # the text to be translated
 > lang: str (en o ar) # the language of the text that must be translated
 
